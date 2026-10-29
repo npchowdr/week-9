@@ -32,4 +32,26 @@ class GroupEstimate(object):
         return self
 
     def predict(self, X_):
-        return None
+        if not hasattr(self, "group_estimates_"):
+            raise ValueError("Model must be fit before calling predict")
+
+        if isinstance(X_, pd.DataFrame):
+            X_pred = X_.copy()
+        else:
+            X_pred = pd.DataFrame(X_, columns=self.columns_)
+
+        if list(X_pred.columns) != self.columns_:
+            X_pred = X_pred.loc[:, self.columns_]
+
+        if len(self.columns_) == 1:
+            keys = X_pred[self.columns_[0]]
+            predictions = keys.map(self.group_estimates_)
+        else:
+            keys = X_pred.apply(tuple, axis=1)
+            predictions = keys.map(self.group_estimates_)
+
+        missing_count = int(predictions.isna().sum())
+        if missing_count > 0:
+            print(f"Number of missing groups: {missing_count}")
+
+        return predictions
