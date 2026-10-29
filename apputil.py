@@ -54,4 +54,4 @@ class GroupEstimate(object):
         if missing_count > 0:
             print(f"Number of missing groups: {missing_count}")
 
-        return predictions
+        return predictions.to_numpy(dtype=float)
